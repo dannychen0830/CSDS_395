@@ -1,9 +1,18 @@
 // TODO: Move this to a separate env file
 const size = 40;
 
-function Node({ top, left, focusNode, openContextMenu, name, infected }) {
+function Node({
+  top,
+  left,
+  focusNode,
+  openContextMenu,
+  name,
+  infected,
+  createConnection,
+}) {
   return (
     <div
+      onClick={createConnection}
       onMouseDown={(event) => {
         if (event.button == 0) focusNode();
       }}
