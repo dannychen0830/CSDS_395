@@ -8,6 +8,7 @@ function ContextMenu({
   toggleInfect,
   deleteNode,
   createConnection,
+  closeContextMenu,
 }) {
   return (
     <div
@@ -18,15 +19,19 @@ function ContextMenu({
         left: left + offset,
         top: top + offset,
       }}
+      onClick={(event) => {
+        event.stopPropagation();
+        closeContextMenu();
+      }}
     >
       <ul>
         <li onClick={toggleInfect}>
           <p>Toggle Infection</p>
         </li>
-        <li>
+        <li onClick={deleteNode}>
           <p>Delete Node</p>
         </li>
-        <li>
+        <li onClick={createConnection}>
           <p>Create Connection</p>
         </li>
       </ul>
