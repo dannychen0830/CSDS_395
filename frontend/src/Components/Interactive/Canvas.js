@@ -3,6 +3,8 @@ import Connection from "./Connection";
 
 import { useState, useCallback, useReducer, useRef } from "react";
 import ContextMenu from "./ContextMenu";
+import { useSelector, useDispatch } from "react-redux";
+import { addNode } from "../../store/reducers/network";
 
 const width = 1000;
 const height = 600;
@@ -167,7 +169,10 @@ const initialState = {
 function Canvas() {
   const canvas = useRef(null);
   const [state, dispatch] = useReducer(nodeReducer, initialState);
-
+  const nodes = useSelector((state) => {
+    state.network.nodes;
+  });
+  const dispatchRedux = useDispatch();
   return (
     <div>
       <button
