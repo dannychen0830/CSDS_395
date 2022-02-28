@@ -3,8 +3,15 @@ import Connection from "./Connection";
 
 import { useState, useCallback, useReducer, useRef } from "react";
 import ContextMenu from "./ContextMenu";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  addNode as addNodeRedux,
+  addConnection as addConnectionRedux,
+  toggleInfect as toggleInfectRedux,
+  deleteNode as deleteNodeRedux,
+} from "../../store/reducers/network";
 
-const width = 1000;
+const width = 800;
 const height = 600;
 
 const createNode = (nodes) => {
@@ -73,7 +80,9 @@ const nodeReducer = (state, action) => {
   console.log(action);
   switch (action.type) {
     case "addNode":
-      newState = { ...state, nodes: [...state.nodes, createNode(state.nodes)] };
+      const newNode = createNode(state.nodes);
+      action.dispatchRedux(addNodeRedux({ name: newNode.name }));
+      newState = { ...state, nodes: [...state.nodes, newNode] };
       break;
     case "focusNode":
       newState = { ...state, focusedIndex: action.index };
@@ -166,17 +175,22 @@ const initialState = {
 
 function Canvas() {
   const canvas = useRef(null);
+  const dispatchRedux = useDispatch();
   const [state, dispatch] = useReducer(nodeReducer, initialState);
-
+  // const nodes = useSelector((state) => {
+  //   state.network.nodes;
+  // });
   return (
     <div>
       <button
         onClick={(event) => {
-          dispatch({ type: "addNode" });
+          console.log("clicked");
+          dispatch({ type: "addNode", dispatchRedux: dispatchRedux });
         }}
       >
         Add node
       </button>
+      <button>Simulate</button>
       <div
         ref={canvas}
         style={{
