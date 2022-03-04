@@ -1,6 +1,6 @@
 import Node from "./Node";
 import Connection from "./Connection";
-
+import { Paper } from "@mui/material";
 import { useState, useCallback, useReducer, useRef } from "react";
 import ContextMenu from "./ContextMenu";
 import { useSelector, useDispatch } from "react-redux";
@@ -191,7 +191,7 @@ function Canvas() {
         Add node
       </button>
       <button>Simulate</button>
-      <div
+      <Paper
         ref={canvas}
         style={{
           background: "lightblue",
@@ -299,7 +299,7 @@ function Canvas() {
             topB={state.mouseCursorLocation.top}
           ></Connection>
         ) : null}
-      </div>
+      </Paper>
     </div>
   );
 }
