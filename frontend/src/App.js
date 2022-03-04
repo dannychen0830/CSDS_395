@@ -1,14 +1,17 @@
 import logo from "./logo.svg";
 import "./App.css";
-import InteractiveInput from "./Components/Interactive/InteractiveInput";
-import TextEditorPanel from "./Components/TextEditors/TextEditPanel";
-import ResultDisplay from "./Components/Result/ResultDisplay";
-import { Routes, Route } from "react-router-dom";
+import Demo from "./Pages/Demo";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 function App() {
   return (
-    <div className="App" style={{ display: "flex" }}>
-      <InteractiveInput></InteractiveInput>
-      <ResultDisplay />
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Demo />}>
+            <Route path="demo" element={<Demo />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
