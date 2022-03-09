@@ -1,4 +1,5 @@
 import { Grid, Item, Paper } from "@mui/material";
+import { blue } from "@mui/material/colors";
 import InteractiveInput from "../Components/Interactive/InteractiveInput";
 import ResultDisplay from "../Components/Result/ResultDisplay";
 
@@ -11,10 +12,10 @@ const Demo = (props) => {
         display: "flex",
       }}
     >
-      <div style={{ width: "60vw", height: "100vh" }}>
+      <div style={{ width: "55vw", height: "100vh" }}>
         <InteractiveInput></InteractiveInput>
       </div>
-      <div style={{ width: "40vw", height: "100vh" }}>
+      <div style={{ width: "45vw", height: "100vh"}}>
         <ResultDisplay />
       </div>
     </div>
