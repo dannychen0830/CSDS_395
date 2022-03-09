@@ -1,6 +1,6 @@
 import Node from "./Node";
 import Connection from "./Connection";
-import { Paper } from "@mui/material";
+import { Button, ButtonGroup, Paper } from "@mui/material";
 import { useState, useCallback, useReducer, useRef } from "react";
 import ContextMenu from "./ContextMenu";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,9 +10,50 @@ import {
   toggleInfect as toggleInfectRedux,
   deleteNode as deleteNodeRedux,
 } from "../../store/reducers/network";
+import { setResult as setResultRedux } from "../../store/reducers/apiCall";
 
 const width = 800;
-const height = 600;
+const height = 650;
+
+const convertNodesToInputFormat = (nodes) => {
+  let nodesOnly = [];
+  let infected = [];
+  let connections = [];
+
+  nodes.forEach((node) => {
+    nodesOnly.push(node.name);
+    if (node.infected) {
+      infected.push(node.name);
+    }
+    node.connections.forEach((target) => connections.push([node.name, target]));
+  });
+  return { nodes: nodesOnly, infected: infected, connections: connections };
+};
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+async function fetchSimulationCall({ nodes, connections, infected }) {
+  // TODO: Actually fetch the api when the api is up
+  // Fake data look like [3,1,2]: 0.46, [2,1,3]: 0.3, [1,2,3]: 0.23 }
+  let hmap = new Map();
+  let permu = infected;
+  for (let i = 0; i < 100; i++) {
+    permu = shuffle(infected);
+
+    if (hmap[permu] != undefined) {
+      hmap[permu] = hmap[permu] + 1;
+    } else {
+      hmap[permu] = 1;
+    }
+  }
+  let result = [];
+  for (const [k, v] of Object.entries(hmap)) {
+    result.push({ sequence: k, probability: v / 100 });
+  }
+  return result.sort((a, b) => b.probability - a.probability);
+}
 
 const createNode = (nodes) => {
   let newNode = {
@@ -182,15 +223,26 @@ function Canvas() {
   // });
   return (
     <div>
-      <button
-        onClick={(event) => {
-          console.log("clicked");
-          dispatch({ type: "addNode", dispatchRedux: dispatchRedux });
-        }}
-      >
-        Add node
-      </button>
-      <button>Simulate</button>
+      <ButtonGroup>
+        <Button
+          onClick={(event) => {
+            console.log("clicked");
+            dispatch({ type: "addNode", dispatchRedux: dispatchRedux });
+          }}
+        >
+          Add node
+        </Button>
+        <Button
+          onClick={async function ano() {
+            let inputFormated = convertNodesToInputFormat(state.nodes);
+            let result = await fetchSimulationCall(inputFormated);
+            dispatchRedux(setResultRedux(result));
+          }}
+        >
+          Simulate
+        </Button>
+      </ButtonGroup>
+
       <Paper
         ref={canvas}
         style={{
