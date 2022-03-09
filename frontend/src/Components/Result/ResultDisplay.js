@@ -1,12 +1,20 @@
+import { useSelector, useDispatch } from "react-redux";
 const ResultDisplay = (props) => {
-  return (
+  const resultRedux = useSelector((state) => state.apiCall.result);
+  return resultRedux ? (
     <div>
-      <p>Highest probability node being patient 0</p>
-      <p>Probability: 60%</p>
+      <p>Highest probability sequences: {resultRedux[0].sequence}</p>
+      <p>Probability: {resultRedux[0].probability * 100}%</p>
       <p>Runner ups:</p>
-      <li>Node 2: 56%</li>
-      <li>Node 0: 40%</li>
+      {resultRedux.slice(1, 10).map((item) => {
+        let text = `Sequence: ${item.sequence}, probability: ${
+          item.probability * 100
+        } %`;
+        return <p>{text}</p>;
+      })}
     </div>
+  ) : (
+    <div>Click simulate for resul</div>
   );
 };
 
