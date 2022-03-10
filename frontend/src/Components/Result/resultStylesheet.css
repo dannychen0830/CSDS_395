@@ -1,0 +1,19 @@
+p.resultBox{
+    text-align: left;
+    color: rgb(66, 128, 167);
+    text-decoration: underline;
+    font-size: medium;
+    font-weight: 600;
+}
+
+button:disabled,
+button[disabled]{
+  color: rgb(73, 142, 185);
+  border: 1px solid #999999;
+  font-size: large;
+  font-weight: 600;
+}
+
+#border{
+    border: #999999;
+}
