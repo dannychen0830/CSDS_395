@@ -1,3 +1,5 @@
+import { Card } from "@mui/material";
+
 // TODO: Move this to a separate env file
 const size = 40;
 
@@ -11,7 +13,7 @@ function Node({
   createConnection,
 }) {
   return (
-    <div
+    <Card
       onClick={createConnection}
       onMouseDown={(event) => {
         if (event.button == 0) focusNode();
@@ -27,7 +29,6 @@ function Node({
         width: size + "px",
         height: size + "px",
         borderRadius: "100%",
-        border: "2px solid black",
         position: "absolute",
         left: left - size / 2 + "px",
         top: top - size / 2 + "px",
@@ -43,7 +44,7 @@ function Node({
       >
         {name}
       </p>
-    </div>
+    </Card>
   );
 }
 
