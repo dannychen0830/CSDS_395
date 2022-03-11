@@ -1,6 +1,6 @@
 import Node from "./Node";
 import Connection from "./Connection";
-import { Button, ButtonGroup, Paper } from "@mui/material";
+import { Button, ButtonGroup, Card, Paper } from "@mui/material";
 import { useState, useCallback, useReducer, useRef } from "react";
 import ContextMenu from "./ContextMenu";
 import { useSelector, useDispatch } from "react-redux";
@@ -243,10 +243,11 @@ function Canvas() {
         </Button>
       </ButtonGroup>
 
-      <Paper
+      <Card
         ref={canvas}
         style={{
-          background: "lightblue",
+          marginLeft: "20px",
+          background: "#b2f7e9",
           height: height + "px",
           width: width + "px",
           position: "relative",
@@ -351,7 +352,7 @@ function Canvas() {
             topB={state.mouseCursorLocation.top}
           ></Connection>
         ) : null}
-      </Paper>
+      </Card>
     </div>
   );
 }

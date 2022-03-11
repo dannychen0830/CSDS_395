@@ -1,3 +1,4 @@
+import { Card } from "@mui/material";
 import { useMemo } from "react";
 const width = 4;
 
@@ -21,7 +22,7 @@ function Connection({ leftA, topA, leftB, topB }) {
     return calculateAngle(leftA, topA, leftB, topB);
   }, [leftA, leftB, topA, topB]);
   return (
-    <div
+    <Card
       style={{
         height: width + "px",
         width: length,
@@ -32,7 +33,7 @@ function Connection({ leftA, topA, leftB, topB }) {
         zIndex: 1,
         transform: "rotate(" + angle.toFixed(3) + "rad)",
       }}
-    ></div>
+    ></Card>
   );
 }
 
