@@ -1,4 +1,6 @@
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 import "./resultStylesheet.css";
 import {
   Card,
@@ -9,6 +11,7 @@ import {
   ListItemButton,
   Typography,
 } from "@mui/material";
+
 const TopCard = ({ sequence, probability }) => {
   return (
     <Card style={{ margin: "20px" }} sx={{ width: "100%" }}>
@@ -24,13 +27,13 @@ const TopCard = ({ sequence, probability }) => {
   );
 };
 
-const RunnerUpList = ({ results }) => {
+const RunnerUpList = ({ results, cardClick }) => {
   return (
     <Card style={{ margin: "20px" }} sx={{ width: "100%" }}>
       <List>
-        {results.map((item) => (
+        {results.map((item, index) => (
           <ListItem>
-            <ListItemButton>
+            <ListItemButton onClick={() => cardClick(index)}>
               {`Sequence: ${item.sequence}, probability: ${
                 item.probability * 100
               } %`}
@@ -43,14 +46,23 @@ const RunnerUpList = ({ results }) => {
 };
 
 const ResultDisplay = (props) => {
+  const navigate = useNavigate();
   const resultRedux = useSelector((state) => state.apiCall.result);
+
+  function cardClick(index) {
+    navigate("/result/" + index);
+  }
+
   return resultRedux ? (
     <Grid container spacing={2}>
       <TopCard
         sequence={resultRedux[0].sequence}
         probability={resultRedux[0].probability}
       ></TopCard>
-      <RunnerUpList results={resultRedux.slice(1, 10)}></RunnerUpList>
+      <RunnerUpList
+        results={resultRedux.slice(1, 10)}
+        cardClick={cardClick}
+      ></RunnerUpList>
     </Grid>
   ) : (
     <Card>

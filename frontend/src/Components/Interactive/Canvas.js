@@ -9,11 +9,9 @@ import {
   addConnection as addConnectionRedux,
   toggleInfect as toggleInfectRedux,
   deleteNode as deleteNodeRedux,
+  setNodesNetwork as setNodesNetworkRedux,
 } from "../../store/reducers/network";
 import { setResult as setResultRedux } from "../../store/reducers/apiCall";
-
-const width = 800;
-const height = 650;
 
 const convertNodesToInputFormat = (nodes) => {
   let nodesOnly = [];
@@ -55,7 +53,7 @@ async function fetchSimulationCall({ nodes, connections, infected }) {
   return result.sort((a, b) => b.probability - a.probability);
 }
 
-const createNode = (nodes) => {
+const createNode = (nodes, width, height) => {
   let newNode = {
     name: nodes.length,
     infected: false,
@@ -121,8 +119,7 @@ const nodeReducer = (state, action) => {
   console.log(action);
   switch (action.type) {
     case "addNode":
-      const newNode = createNode(state.nodes);
-      action.dispatchRedux(addNodeRedux({ name: newNode.name }));
+      const newNode = createNode(state.nodes, action.width, action.height);
       newState = { ...state, nodes: [...state.nodes, newNode] };
       break;
     case "focusNode":
@@ -206,28 +203,31 @@ const nodeReducer = (state, action) => {
   return newState;
 };
 
-const initialState = {
-  nodes: [],
-  focusedIndex: null,
-  contextMenuIndex: null,
-  creatingConnectionIndex: null,
-  mouseCursorLocation: null,
-};
-
 function Canvas() {
   const canvas = useRef(null);
   const dispatchRedux = useDispatch();
+  const nodesNetwork = useSelector(
+    (stateRedux) => stateRedux.network.nodesNetwork
+  );
+  const initialState = {
+    nodes: [...nodesNetwork],
+    focusedIndex: null,
+    contextMenuIndex: null,
+    creatingConnectionIndex: null,
+    mouseCursorLocation: null,
+  };
   const [state, dispatch] = useReducer(nodeReducer, initialState);
-  // const nodes = useSelector((state) => {
-  //   state.network.nodes;
-  // });
   return (
-    <div>
+    <>
       <ButtonGroup>
         <Button
           onClick={(event) => {
             console.log("clicked");
-            dispatch({ type: "addNode", dispatchRedux: dispatchRedux });
+            dispatch({
+              type: "addNode",
+              width: canvas.current.clientWidth,
+              height: canvas.current.clientHeight,
+            });
           }}
         >
           Add node
@@ -236,6 +236,7 @@ function Canvas() {
           onClick={async function ano() {
             let inputFormated = convertNodesToInputFormat(state.nodes);
             let result = await fetchSimulationCall(inputFormated);
+            dispatchRedux(setNodesNetworkRedux(state.nodes));
             dispatchRedux(setResultRedux(result));
           }}
         >
@@ -248,8 +249,8 @@ function Canvas() {
         style={{
           marginLeft: "20px",
           background: "#b2f7e9",
-          height: height + "px",
-          width: width + "px",
+          height: "90%",
+          width: "95%",
           position: "relative",
         }}
         onClick={(event) => {
@@ -353,8 +354,10 @@ function Canvas() {
           ></Connection>
         ) : null}
       </Card>
-    </div>
+    </>
   );
 }
 
 export default Canvas;
+
+export { nodeReducer };
