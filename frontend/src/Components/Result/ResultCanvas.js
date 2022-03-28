@@ -71,6 +71,30 @@ const ResultCanvas = ({ result }) => {
     return { left: left, top: top };
   };
 
+  const increaseTime = (state) => {
+    return {
+      ...state,
+      nodes: state.nodes.map((node, index) =>
+        node.name == state.sequence[state.currentIndex + 1]
+          ? { ...node, infected: true }
+          : node
+      ),
+      currentIndex: state.currentIndex + 1,
+    };
+  };
+
+  const decreaseTime = (state) => {
+    return {
+      ...state,
+      nodes: state.nodes.map((node, index) =>
+        node.name == state.sequence[state.currentIndex]
+          ? { ...node, infected: false }
+          : node
+      ),
+      currentIndex: state.currentIndex - 1,
+    };
+  };
+
   const initialState = {
     nodes: nodesNetwork.map((node, id) => {
       return { ...node, infected: id == result.sequence[0] ? true : false };
@@ -169,6 +193,12 @@ const ResultCanvas = ({ result }) => {
           nodes: deleteNode(state.nodes, action.index),
         };
         break;
+      case "increaseTime":
+        newState = increaseTime(state);
+        break;
+      case "decreaseTime":
+        newState = decreaseTime(state);
+        break;
       default:
         newState = state;
     }
@@ -231,15 +261,20 @@ const ResultCanvas = ({ result }) => {
                 topA={node.top}
                 leftB={state.nodes[connection].left}
                 topB={state.nodes[connection].top}
+                infected={node.infected && state.nodes[connection].infected}
               ></Connection>
             );
           });
         })}
       </Card>
       <ButtonGroup>
-        <Button>{"<"}</Button>
+        <Button onClick={() => dispatch({ type: "decreaseTime" })}>
+          {"<"}
+        </Button>
         <Button>Play</Button>
-        <Button>{">"}</Button>
+        <Button onClick={() => dispatch({ type: "increaseTime" })}>
+          {">"}
+        </Button>
       </ButtonGroup>
     </>
   );
