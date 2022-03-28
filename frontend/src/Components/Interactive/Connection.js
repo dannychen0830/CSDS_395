@@ -35,10 +35,10 @@ function Connection({ leftA, topA, leftB, topB, infected }) {
       background: "linear-gradient(to left, black 50%, salmon 50%)",
       backgroundSize: "200%",
       backgroundPosition: infected ? "left" : "right",
-      transition: ".5s ease-out",
+      transition: "background-position .5s ease-out",
     };
     return tmp;
-  }, [infected]);
+  }, [infected, width, angle]);
   return <Card style={style}></Card>;
 }
 
