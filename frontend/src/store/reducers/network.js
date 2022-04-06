@@ -29,8 +29,15 @@ export const networkSlice = createSlice({
     nodes: [],
     connections: [],
     infected: [],
+    nodesNetwork: [],
   },
   reducers: {
+    setNodesNetwork: (state, action) => {
+      return {
+        ...state,
+        nodesNetwork: action.payload,
+      };
+    },
     setNodes: (state, action) => {
       return {
         ...state,
@@ -83,6 +90,7 @@ export const {
   addConnection,
   toggleInfect,
   deleteNode,
+  setNodesNetwork,
 } = networkSlice.actions;
 
 export default networkSlice.reducer;

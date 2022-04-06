@@ -32,13 +32,13 @@ function Connection({ leftA, topA, leftB, topB, infected }) {
       background: "black",
       zIndex: 1,
       transform: "rotate(" + angle.toFixed(3) + "rad)",
-      background: "linear-gradient(to left, black 50%, salmon 50%)",
+      background: "linear-gradient(to right, black 50%, salmon 50%)",
       backgroundSize: "200%",
-      backgroundPosition: infected ? "left" : "right",
-      transition: ".5s ease-out",
+      backgroundPosition: infected ? "right" : "left",
+      transition: "background-position .5s ease-out",
     };
     return tmp;
-  }, [infected]);
+  }, [infected, width, angle]);
   return <Card style={style}></Card>;
 }
 
