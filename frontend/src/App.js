@@ -13,7 +13,7 @@ function App() {
           <Route path="/input" element={<InputPage />} />
           <Route path="/pg" element={<Playground></Playground>} />
           <Route path="/result/:index" element={<ResultPage />} />
-          <Route path="/" element={<Demo />}>
+          <Route path="/" element={<InputPage />}>
             <Route path="demo" element={<Demo />} />
           </Route>
         </Routes>
