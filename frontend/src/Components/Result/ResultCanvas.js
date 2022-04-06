@@ -8,7 +8,6 @@ const ResultCanvas = ({ result }) => {
   const nodesNetwork = useSelector(
     (stateRedux) => stateRedux.network.nodesNetwork
   );
-  const resultRedux = useSelector((stateRedux) => stateRedux.apiCall.result);
 
   const createNode = (nodes, width, height) => {
     let newNode = {
@@ -206,7 +205,6 @@ const ResultCanvas = ({ result }) => {
     return newState;
   };
   const [state, dispatch] = useReducer(nodeReducer, initialState);
-  console.log(result);
   return (
     <>
       <Card

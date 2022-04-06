@@ -12,6 +12,7 @@ import {
   setNodesNetwork as setNodesNetworkRedux,
 } from "../../store/reducers/network";
 import { setResult as setResultRedux } from "../../store/reducers/apiCall";
+import { useNavigate } from "react-router-dom";
 
 const convertNodesToInputFormat = (nodes) => {
   let nodesOnly = [];
@@ -217,6 +218,7 @@ function Canvas() {
     mouseCursorLocation: null,
   };
   const [state, dispatch] = useReducer(nodeReducer, initialState);
+  const navigate = useNavigate();
   return (
     <>
       <ButtonGroup>
@@ -238,6 +240,7 @@ function Canvas() {
             let result = await fetchSimulationCall(inputFormated);
             dispatchRedux(setNodesNetworkRedux(state.nodes));
             dispatchRedux(setResultRedux(result));
+            navigate("/result/0");
           }}
         >
           Simulate
