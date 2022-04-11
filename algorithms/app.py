@@ -60,6 +60,7 @@ def conns_to_adj_matrix(nodes_list, connections_list):
 
     return matrix
 
+# Formats the MCMC function output to frontend input
 def results_to_output(results):
     total = sum(results.values())
     output = []
