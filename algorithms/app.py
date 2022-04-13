@@ -1,15 +1,19 @@
 from flask import Flask, Response, jsonify, request
 import numpy as np
 from MCMC import MetropolisHastings, MetropolisHastingsNoisy
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/", methods=['POST'])
 def metropolis():
 
     raw_input = request.json
 
-    # List of variables and their defaults
+    # input - List of variables and their defaults
+    # required_input - variables which must be included in API request field
+    required_input = ['connections', 'nodes', 'infected']
     input = {'connections': None,
             'nodes': None,
             'infected': None,
@@ -18,9 +22,6 @@ def metropolis():
             'lag': 3,
             'p': 0.13,
             'burn_in': 0.1,}
-    
-    # Required variables, will return Bad Request if any missing
-    required_input = ['connections', 'nodes', 'infected']
 
     for key in input.keys():
         if key in raw_input.keys():
@@ -40,10 +41,9 @@ def metropolis():
     output = results_to_output(result[0])
     return jsonify(output)
 
+# Invalid request response generator
 def invalid_request(text):
-    return Response(
-        text,
-        status=400,)
+    return Response(text, status=400,)
 
 # Accepts a list of connections and returns an adjacency matrix
 def conns_to_adj_matrix(nodes_list, connections_list):
@@ -67,7 +67,7 @@ def results_to_output(results):
 
     for sequence in results.keys():
         probability = results[sequence] / total
-        output.append({"sequence":sequence, "probability":probability})
+        output.append({"sequence":sequence.rstrip(','), "probability":probability})
     
     return output
 

@@ -13,6 +13,7 @@ import {
 } from "../../store/reducers/network";
 import { setResult as setResultRedux } from "../../store/reducers/apiCall";
 import { useNavigate } from "react-router-dom";
+import axios from "axios"
 
 const convertNodesToInputFormat = (nodes) => {
   let nodesOnly = [];
@@ -52,6 +53,19 @@ async function fetchSimulationCall({ nodes, connections, infected }) {
     result.push({ sequence: k, probability: v / 100 });
   }
   return result.sort((a, b) => b.probability - a.probability);
+}
+
+// API call
+async function apiCall({nodes, connections, infected}) {
+
+  let body = {"nodes": nodes, "connections": connections, "infected": infected};
+  let promise = axios({
+    method: 'post',
+    url: 'http://localhost:5000/',
+    data: body
+  }).then((response) => response.data);
+
+  return promise;
 }
 
 const createNode = (nodes, width, height) => {
@@ -237,7 +251,7 @@ function Canvas() {
         <Button
           onClick={async function ano() {
             let inputFormated = convertNodesToInputFormat(state.nodes);
-            let result = await fetchSimulationCall(inputFormated);
+            let result = await apiCall(inputFormated);
             dispatchRedux(setNodesNetworkRedux(state.nodes));
             dispatchRedux(setResultRedux(result));
             navigate("/result/0");
