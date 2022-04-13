@@ -52,8 +52,8 @@ def conns_to_adj_matrix(nodes_list, connections_list):
     matrix = np.zeros((node_count, node_count))
 
     for connection in connections_list:
-        node_a = connection[0]
-        node_b = connection[1]
+        node_a = nodes_list.index(connection[0])
+        node_b = nodes_list.index(connection[1])
 
         matrix[node_a][node_b] = 1
         matrix[node_b][node_a] = 1
@@ -68,8 +68,9 @@ def results_to_output(results):
     for sequence in results.keys():
         probability = results[sequence] / total
         output.append({"sequence":sequence.rstrip(','), "probability":probability})
+
+    output.sort(key=lambda x: x['probability'], reverse=True)
     
     return output
-
 
     
