@@ -20,7 +20,7 @@ const TopCard = ({ sequence, probability }) => {
           Highest probability sequences: {sequence}
         </Typography>
         <Typography variant="h5" component="div">
-          {probability * 100}%
+          {Math.round(probability * 100)}%
         </Typography>
       </CardContent>
     </Card>
@@ -35,7 +35,7 @@ const RunnerUpList = ({ results, cardClick }) => {
           <ListItem>
             <ListItemButton onClick={() => cardClick(index)}>
               {`Sequence: ${item.sequence}, probability: ${
-                item.probability * 100
+                Math.round(item.probability * 100)
               } %`}
             </ListItemButton>
           </ListItem>
