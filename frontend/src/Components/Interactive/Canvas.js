@@ -55,6 +55,7 @@ async function fetchSimulationCall({ nodes, connections, infected }) {
   return result.sort((a, b) => b.probability - a.probability);
 }
 
+
 // API call
 async function apiCall({nodes, connections, infected}) {
 
@@ -68,9 +69,10 @@ async function apiCall({nodes, connections, infected}) {
   return promise;
 }
 
-const createNode = (nodes, width, height) => {
+
+const createNode = (nextName, width, height) => {
   let newNode = {
-    name: nodes.length,
+    name: nextName,
     infected: false,
     connections: [],
     top: Math.floor(Math.random() * height),
@@ -129,13 +131,36 @@ const getRelativePosition = (event, canvas) => {
   return { left: left, top: top };
 };
 
+const getNextName = (nodes) => {
+  let name = 0;
+  while (name < nodes.length) {
+    let flag = false;
+    nodes.forEach((node) => {
+      if (name == node.name) {
+        flag = true;
+      }
+    });
+    if (flag) {
+      name += 1;
+    } else {
+      break;
+    }
+  }
+  return name;
+};
+
 const nodeReducer = (state, action) => {
   let newState;
   console.log(action);
   switch (action.type) {
     case "addNode":
-      const newNode = createNode(state.nodes, action.width, action.height);
-      newState = { ...state, nodes: [...state.nodes, newNode] };
+      const newNode = createNode(state.nextName, action.width, action.height);
+      let nextNodes = [...state.nodes, newNode];
+      newState = {
+        ...state,
+        nodes: nextNodes,
+        nextName: getNextName(nextNodes),
+      };
       break;
     case "focusNode":
       newState = { ...state, focusedIndex: action.index };
@@ -206,9 +231,11 @@ const nodeReducer = (state, action) => {
       };
       break;
     case "deleteNode":
+      let newNodes = deleteNode(state.nodes, action.index);
       newState = {
         ...state,
-        nodes: deleteNode(state.nodes, action.index),
+        nodes: newNodes,
+        nextName: getNextName(newNodes),
       };
       break;
     default:
@@ -230,6 +257,7 @@ function Canvas() {
     contextMenuIndex: null,
     creatingConnectionIndex: null,
     mouseCursorLocation: null,
+    nextName: 0,
   };
   const [state, dispatch] = useReducer(nodeReducer, initialState);
   const navigate = useNavigate();
