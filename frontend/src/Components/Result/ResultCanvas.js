@@ -104,6 +104,7 @@ const ResultCanvas = ({ result }) => {
     mouseCursorLocation: null,
     sequence: result.sequence,
     currentIndex: 0, //TODO: Refactor for continuous
+    isPlaying: false,
   };
   const nodeReducer = (state, action) => {
     let newState;
@@ -198,22 +199,56 @@ const ResultCanvas = ({ result }) => {
       case "decreaseTime":
         newState = decreaseTime(state);
         break;
+      case "playOn":
+        newState = {
+          ...state,
+          isPlaying: true,
+        };
+        break;
+      case "playOff":
+        newState = {
+          ...state,
+          isPlaying: false,
+        };
+        break;
       default:
         newState = state;
     }
     console.log(newState);
     return newState;
   };
+
   const [state, dispatch] = useReducer(nodeReducer, initialState);
+
+  const recursivelyPlay = (currentIndex, maxIndex) => {
+    if (currentIndex < maxIndex - 1) {
+      setTimeout(() => {
+        dispatch({ type: "increaseTime" });
+        recursivelyPlay(currentIndex + 1, maxIndex);
+      }, 500);
+    } else {
+      dispatch({ type: "playOff" });
+    }
+  };
+
+  const playSimulation = (state) => {
+    dispatch({ type: "playOn" });
+    let currentIndex = state.currentIndex;
+    const maxIndex = state.sequence.length;
+    recursivelyPlay(currentIndex, maxIndex);
+  };
+
   return (
     <>
       <Card
         ref={canvas}
         style={{
+          marginTop: "20px",
+          marginRight: "30px",
           marginLeft: "20px",
           background: "#b2f7e9",
-          height: "600px",
-          width: "800px",
+          height: "90%",
+          width: "100%",
           position: "relative",
         }}
         onMouseUp={(event) => {
@@ -266,11 +301,23 @@ const ResultCanvas = ({ result }) => {
         })}
       </Card>
       <ButtonGroup>
-        <Button onClick={() => dispatch({ type: "decreaseTime" })}>
+        <Button
+          onClick={() => dispatch({ type: "decreaseTime" })}
+          disabled={state.isPlaying}
+        >
           {"<"}
         </Button>
-        <Button>Play</Button>
-        <Button onClick={() => dispatch({ type: "increaseTime" })}>
+        <Button
+          onClick={() => {
+            playSimulation(state);
+          }}
+        >
+          Play
+        </Button>
+        <Button
+          onClick={() => dispatch({ type: "increaseTime" })}
+          disabled={state.isPlaying}
+        >
           {">"}
         </Button>
       </ButtonGroup>
