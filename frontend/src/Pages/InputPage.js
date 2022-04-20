@@ -11,13 +11,12 @@ const InputPage = (props) => {
         width: "100vw",
         height: "100vh",
         display: "flex",
+        alignItems: "center",
+        flexDirection: "column",
       }}
     >
-      <div style={{ width: "55vw", height: "100vh" }}>
+      <div style={{ width: "100vw", height: "100vh" }}>
         <InteractiveInput></InteractiveInput>
-      </div>
-      <div style={{ width: "45vw", height: "100vh" }}>
-        <TextInput></TextInput>
       </div>
     </div>
   );

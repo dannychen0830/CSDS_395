@@ -1,6 +1,18 @@
 import Node from "./Node";
 import Connection from "./Connection";
-import { Button, ButtonGroup, Card, Paper } from "@mui/material";
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  Box,
+  Typography,
+  Modal,
+  Input,
+  FormControl,
+  InputLabel,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
 import { useState, useCallback, useReducer, useRef } from "react";
 import ContextMenu from "./ContextMenu";
 import { useSelector, useDispatch } from "react-redux";
@@ -13,236 +25,26 @@ import {
 } from "../../store/reducers/network";
 import { setResult as setResultRedux } from "../../store/reducers/apiCall";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"
 
-const convertNodesToInputFormat = (nodes) => {
-  let nodesOnly = [];
-  let infected = [];
-  let connections = [];
+import {
+  nodeReducer,
+  convertNodesToInputFormat,
+  apiCall,
+  parseTextParams,
+} from "./CanvasController";
 
-  nodes.forEach((node) => {
-    nodesOnly.push(node.name);
-    if (node.infected) {
-      infected.push(node.name);
-    }
-    node.connections.forEach((target) => connections.push([node.name, target]));
-  });
-  return { nodes: nodesOnly, infected: infected, connections: connections };
-};
-
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
-
-async function fetchSimulationCall({ nodes, connections, infected }) {
-  // TODO: Actually fetch the api when the api is up
-  // Fake data look like [3,1,2]: 0.46, [2,1,3]: 0.3, [1,2,3]: 0.23 }
-  let hmap = new Map();
-  let permu = infected;
-  for (let i = 0; i < 100; i++) {
-    permu = shuffle(infected);
-
-    if (hmap[permu] != undefined) {
-      hmap[permu] = hmap[permu] + 1;
-    } else {
-      hmap[permu] = 1;
-    }
-  }
-  let result = [];
-  for (const [k, v] of Object.entries(hmap)) {
-    result.push({ sequence: k, probability: v / 100 });
-  }
-  return result.sort((a, b) => b.probability - a.probability);
-}
-
-
-// API call
-async function apiCall({nodes, connections, infected}) {
-
-  let body = {"nodes": nodes, "connections": connections, "infected": infected};
-  let promise = axios({
-    method: 'post',
-    url: 'http://localhost:5000/',
-    data: body
-  }).then((response) => response.data);
-
-  return promise;
-}
-
-
-const createNode = (nextName, width, height) => {
-  let newNode = {
-    name: nextName,
-    infected: false,
-    connections: [],
-    top: Math.floor(Math.random() * height),
-    left: Math.floor(Math.random() * width),
-    focused: false,
-  };
-  return newNode;
-};
-
-const toggleInfectNode = (nodes, index) => {
-  nodes = nodes.map((node, id) => {
-    if (index === id) {
-      return { ...node, infected: !node.infected };
-    } else return node;
-  });
-  return nodes;
-};
-
-const deleteNode = (nodes, deleteIndex) => {
-  nodes = nodes.filter((node, index) => {
-    return index !== deleteIndex;
-  });
-  return nodes.map((node, index) => {
-    return {
-      ...node,
-      connections: node.connections.filter((c, cIndex) => c !== deleteIndex),
-    };
-  });
-};
-
-const moveNode = (nodes, index, event, canvas) => {
-  const { left, top } = getRelativePosition(event, canvas);
-  nodes[index] = { ...nodes[index], left: left, top: top };
-  return nodes;
-};
-
-const createConnection = (nodes, indexA, indexB) => {
-  if (
-    nodes[indexA].connections.find((item) => item === indexB) !== undefined ||
-    nodes[indexB].connections.find((item) => item === indexA) !== undefined
-  ) {
-    return nodes;
-  }
-  return nodes.map((node, index) => {
-    if (index === indexA) {
-      return { ...node, connections: [...node.connections, indexB] };
-    } else {
-      return node;
-    }
-  });
-};
-
-const getRelativePosition = (event, canvas) => {
-  const left = event.pageX - canvas.offsetLeft;
-  const top = event.pageY - canvas.offsetTop;
-  return { left: left, top: top };
-};
-
-const getNextName = (nodes) => {
-  let name = 0;
-  while (name < nodes.length) {
-    let flag = false;
-    nodes.forEach((node) => {
-      if (name == node.name) {
-        flag = true;
-      }
-    });
-    if (flag) {
-      name += 1;
-    } else {
-      break;
-    }
-  }
-  return name;
-};
-
-const nodeReducer = (state, action) => {
-  let newState;
-  console.log(action);
-  switch (action.type) {
-    case "addNode":
-      const newNode = createNode(state.nextName, action.width, action.height);
-      let nextNodes = [...state.nodes, newNode];
-      newState = {
-        ...state,
-        nodes: nextNodes,
-        nextName: getNextName(nextNodes),
-      };
-      break;
-    case "focusNode":
-      newState = { ...state, focusedIndex: action.index };
-      break;
-    case "unfocusNode":
-      newState = {
-        ...state,
-        focusedIndex: null,
-      };
-      break;
-    case "moveNode":
-      newState = {
-        ...state,
-        nodes: moveNode(state.nodes, action.index, action.event, action.canvas),
-      };
-      break;
-    case "openContextMenu":
-      newState = {
-        ...state,
-        contextMenuIndex: action.index,
-      };
-      break;
-    case "closeContextMenu":
-      newState = {
-        ...state,
-        contextMenuIndex: null,
-      };
-      break;
-    case "toggleInfect":
-      newState = {
-        ...state,
-        nodes: toggleInfectNode(state.nodes, action.index),
-      };
-      break;
-    case "createConnectionDrag":
-      newState = {
-        ...state,
-        creatingConnectionIndex: action.index,
-        mouseCursorLocation: {
-          left: state.nodes[action.index].left,
-          top: state.nodes[action.index].top,
-        },
-      };
-      break;
-    case "dragConnection":
-      newState = {
-        ...state,
-        mouseCursorLocation: getRelativePosition(action.event, action.canvas),
-      };
-      break;
-    case "createConnection":
-      if (state.creatingConnectionIndex !== null) {
-        newState = {
-          ...state,
-          nodes: createConnection(
-            state.nodes,
-            state.creatingConnectionIndex,
-            action.index
-          ),
-        };
-      }
-      break;
-    case "cancelConnectionDrag":
-      newState = {
-        ...state,
-        creatingConnectionIndex: null,
-        mouseCursorLocation: null,
-      };
-      break;
-    case "deleteNode":
-      let newNodes = deleteNode(state.nodes, action.index);
-      newState = {
-        ...state,
-        nodes: newNodes,
-        nextName: getNextName(newNodes),
-      };
-      break;
-    default:
-      newState = state;
-  }
-  console.log(newState);
-  return newState;
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+  display: "flex",
+  flexDirection: "column",
 };
 
 function Canvas() {
@@ -258,27 +60,139 @@ function Canvas() {
     creatingConnectionIndex: null,
     mouseCursorLocation: null,
     nextName: 0,
+    isNoisy: false,
+    numSample: "300",
+    lag: "3",
+    p: "0.13",
+    burnIn: "0.1",
+    modalOpen: false,
   };
   const [state, dispatch] = useReducer(nodeReducer, initialState);
   const navigate = useNavigate();
   return (
     <>
-      <ButtonGroup>
+      <Modal
+        open={state.modalOpen}
+        onClose={() => dispatch({ type: "closeModal" })}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Additional Parameters for simulation
+          </Typography>
+          <FormControl variant="standard">
+            <InputLabel htmlFor="component-simple">
+              Number of Samples
+            </InputLabel>
+            <Input
+              id="component-simple"
+              value={state.numSample}
+              onChange={(event) =>
+                dispatch({
+                  type: "updateNumSample",
+                  numSample: event.target.value,
+                })
+              }
+            />
+          </FormControl>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={state.isNoisy}
+                onChange={() => dispatch({ type: "toggleNoise" })}
+              />
+            }
+            label="Is Noisy"
+          />
+          <FormControl variant="standard">
+            <InputLabel htmlFor="component-simple">Lag</InputLabel>
+            <Input
+              id="component-simple"
+              value={state.lag}
+              onChange={(event) =>
+                dispatch({
+                  type: "updateLag",
+                  lag: event.target.value,
+                })
+              }
+            />
+          </FormControl>
+          <FormControl variant="standard">
+            <InputLabel htmlFor="component-simple">p value</InputLabel>
+            <Input
+              id="component-simple"
+              value={state.p}
+              onChange={(event) =>
+                dispatch({
+                  type: "updateP",
+                  p: event.target.value,
+                })
+              }
+            />
+          </FormControl>
+          <FormControl variant="standard">
+            <InputLabel htmlFor="component-simple">Burn in</InputLabel>
+            <Input
+              id="component-simple"
+              value={state.burnIn}
+              onChange={(event) =>
+                dispatch({
+                  type: "updateBurnIn",
+                  burnIn: event.target.value,
+                })
+              }
+            />
+          </FormControl>
+        </Box>
+      </Modal>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <ButtonGroup style={{ margin: "5px" }}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => dispatch({ type: "openModal" })}
+          >
+            Additional Paramters
+          </Button>
+          <Button
+            variant="contained"
+            onClick={(event) => {
+              console.log("clicked");
+              dispatch({
+                type: "addNode",
+                width: canvas.current.clientWidth,
+                height: canvas.current.clientHeight,
+              });
+            }}
+          >
+            Add node
+          </Button>
+        </ButtonGroup>
         <Button
-          onClick={(event) => {
-            console.log("clicked");
-            dispatch({
-              type: "addNode",
-              width: canvas.current.clientWidth,
-              height: canvas.current.clientHeight,
-            });
-          }}
-        >
-          Add node
-        </Button>
-        <Button
+          style={{ margin: "5px" }}
+          variant="contained"
           onClick={async function ano() {
             let inputFormated = convertNodesToInputFormat(state.nodes);
+            const { numSample, lag, p, burnIn } = parseTextParams(
+              state.numSample,
+              state.lag,
+              state.p,
+              state.burnIn
+            );
+            inputFormated = {
+              ...inputFormated,
+              numSample: numSample,
+              lag: lag,
+              p: p,
+              burnIn: burnIn,
+            };
             let result = await apiCall(inputFormated);
             dispatchRedux(setNodesNetworkRedux(state.nodes));
             dispatchRedux(setResultRedux(result));
@@ -287,15 +201,15 @@ function Canvas() {
         >
           Simulate
         </Button>
-      </ButtonGroup>
+      </div>
 
       <Card
         ref={canvas}
         style={{
-          marginLeft: "20px",
+          margin: "0 10px",
           background: "#b2f7e9",
           height: "90%",
-          width: "95%",
+          width: "98%",
           position: "relative",
         }}
         onClick={(event) => {
