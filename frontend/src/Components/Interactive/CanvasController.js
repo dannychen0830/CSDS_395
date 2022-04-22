@@ -263,16 +263,25 @@ export const nodeReducer = (state, action) => {
         burnIn: action.burnIn,
       };
       break;
-    case "openModal":
-      newState = {
-        ...state,
-        modalOpen: true,
-      };
-      break;
+      case "openParamModal":
+        newState = {
+          ...state,
+          paramModalOpen: true,
+          helpModalOpen: false,
+        };
+        break;
+      case "openHelpModal":
+          newState = {
+            ...state,
+            paramModalOpen: false,
+            helpModalOpen: true,
+        };
+        break;
     case "closeModal":
       newState = {
         ...state,
-        modalOpen: false,
+        paramModalOpen: false,
+        helpModalOpen: false,
       };
       break;
     default:

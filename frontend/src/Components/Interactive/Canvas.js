@@ -65,21 +65,22 @@ function Canvas() {
     lag: "3",
     p: "0.13",
     burnIn: "0.1",
-    modalOpen: false,
+    paramModalOpen: false,
+    helpModalOpen: false,
   };
   const [state, dispatch] = useReducer(nodeReducer, initialState);
   const navigate = useNavigate();
   return (
     <>
       <Modal
-        open={state.modalOpen}
+        open={state.paramModalOpen}
         onClose={() => dispatch({ type: "closeModal" })}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Box sx={modalStyle}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Additional Parameters for simulation
+            Additional Parameters for Simulation
           </Typography>
           <FormControl variant="standard">
             <InputLabel htmlFor="component-simple">
@@ -119,7 +120,7 @@ function Canvas() {
             />
           </FormControl>
           <FormControl variant="standard">
-            <InputLabel htmlFor="component-simple">p value</InputLabel>
+            <InputLabel htmlFor="component-simple">p Value</InputLabel>
             <Input
               id="component-simple"
               value={state.p}
@@ -132,7 +133,7 @@ function Canvas() {
             />
           </FormControl>
           <FormControl variant="standard">
-            <InputLabel htmlFor="component-simple">Burn in</InputLabel>
+            <InputLabel htmlFor="component-simple">Burn In</InputLabel>
             <Input
               id="component-simple"
               value={state.burnIn}
@@ -146,6 +147,51 @@ function Canvas() {
           </FormControl>
         </Box>
       </Modal>
+      <Modal
+        open={state.helpModalOpen}
+        onClose={() => dispatch({ type: "closeModal" })}
+        aria-labelledby="helpModal-modal-title"
+        aria-describedby="helpModal-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="helpModal-modal-title" variant="h5" component="h2">
+            Help
+          </Typography>
+          <Typography variant="p">
+            &nbsp;
+          </Typography>
+          <Typography variant="p">
+            Click the 'ADD NODE' button to add a node to the canvas. Each node can be moved by clicking and dragging. <br></br>
+          </Typography>
+          <Typography variant="p">
+            &nbsp;
+          </Typography>
+          <Typography variant="p">
+            Right click each node for options to toggle whether or not the selected node is infected, to delete the selected node,
+            or to create a connection to another node.
+          </Typography>
+          <Typography variant="p">
+            &nbsp;
+          </Typography>
+          <Typography variant="p">
+            When creating a connection, drag the newly created line from the first node to a second node that you want to connect to.
+            To cancel a connection, click anywhere outside of a node.
+          </Typography>
+          <Typography variant="p">
+            &nbsp;
+          </Typography>
+          <Typography variant="p">
+            Click the 'ADDITIONAL PARAMETERS' button to modify extra attributes, such as sample size, the appearance of noise, and lag.
+          </Typography>
+          <Typography variant="p">
+            &nbsp;
+          </Typography>
+          <Typography variant="p">
+            When ready, click the 'SIMULATE' button to begin running the simulation on the nodes.
+          </Typography>
+        </Box>
+      </Modal>
+
       <div
         style={{
           display: "flex",
@@ -157,9 +203,9 @@ function Canvas() {
           <Button
             variant="contained"
             size="small"
-            onClick={() => dispatch({ type: "openModal" })}
+            onClick={() => dispatch({ type: "openParamModal" })}
           >
-            Additional Paramters
+            Additional Parameters
           </Button>
           <Button
             variant="contained"
@@ -172,7 +218,13 @@ function Canvas() {
               });
             }}
           >
-            Add node
+            Add Node
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => dispatch({ type: "openHelpModal" })}
+          >
+            Help
           </Button>
         </ButtonGroup>
         <Button
