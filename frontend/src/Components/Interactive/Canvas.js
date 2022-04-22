@@ -159,7 +159,7 @@ function Canvas() {
             size="small"
             onClick={() => dispatch({ type: "openModal" })}
           >
-            Additional Paramters
+            Additional Parameters
           </Button>
           <Button
             variant="contained"
